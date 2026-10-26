@@ -1,62 +1,235 @@
-# WaMaX IDE — Local-First AI Development Environment & Developer API Gateway
+<div align="center">
 
-> **WaMax | Developed By MSAMODS x WhatYouWantKerala** — [github.com/msamods](https://github.com/msamods)
+# ⚡ WaMaX IDE
 
-WaMaX IDE is a high-performance, local-first AI development environment, autonomous agent workspace, and production-grade API Gateway designed for privacy, deterministic security, and zero mandatory cloud API costs.
+### The Local-First Autonomous AI Development Environment, ComfyUI Image Studio & API Gateway
+
+<p align="center">
+  <strong>Crafted with ❤️ by <a href="https://github.com/msamods">MSAMODS</a> × WhatYouWantKerala</strong>
+</p>
+
+[![Release](https://img.shields.io/github/v/release/msamods/WaMaX-IDE?color=06b6d4&style=for-the-badge&logo=github)](https://github.com/msamods/WaMaX-IDE/releases/latest)
+[![Tests Passing](https://img.shields.io/badge/TESTS-41%2F41%20PASSING-10b981?style=for-the-badge&logo=checkmarx)](https://github.com/msamods/WaMaX-IDE)
+[![Platform](https://img.shields.io/badge/PLATFORM-WINDOWS%2010%2F11%20x64-3b82f6?style=for-the-badge&logo=windows)](https://github.com/msamods/WaMaX-IDE/releases)
+[![Offline](https://img.shields.io/badge/OFFLINE-100%25%20LOCAL%20FIRST-8b5cf6?style=for-the-badge&logo=speedtest)](https://github.com/msamods/WaMaX-IDE)
+[![License](https://img.shields.io/badge/LICENSE-MIT-f59e0b?style=for-the-badge)](LICENSE)
+
+<br/>
+
+<a href="https://github.com/msamods/WaMaX-IDE/releases/download/v1.0.0/WaMaX-IDE.exe">
+  <img src="https://img.shields.io/badge/⚡_DOWNLOAD_WAMAX--IDE.EXE-06B6D4?style=for-the-badge&logo=windows&logoColor=white" height="42" alt="Download Executable" />
+</a>
+<a href="#-quick-start">
+  <img src="https://img.shields.io/badge/📖_DOCUMENTATION-161B22?style=for-the-badge&logo=gitbook&logoColor=white" height="42" alt="Documentation" />
+</a>
+
+<br/><br/>
+
+> **WaMaX IDE** is an ultra-fast, privacy-first developer environment inspired by VS Code and modern AI coding assistants. It combines a **Monaco Code Editor**, **Autonomous Agent Builder**, **ComfyUI Image Studio**, and **OpenAI-Compatible API Gateway** — running **100% locally** with **zero mandatory API keys**.
+
+</div>
 
 ---
 
-## Key Highlights
+## 🌟 Why WaMaX IDE?
 
-- **100% Localhost-First:** Connects directly to local open-weight model runtimes via Ollama (`http://127.0.0.1:11434`).
-- **Zero-Cloud & Zero Paid API Subscriptions:** Runs completely offline after downloading models.
-- **Laptop Resource Throttling (7GB RAM Friendly):** Configured with `keep_alive: 0s` so local AI models are immediately unloaded from memory after inference. **RAM is only used during API calls**, leaving system memory completely free for compilation and browsing!
-- **Deterministic Rules Engine:** Hierarchical rule resolution with inviolable safety constraints (Priority 1000) that can never be overridden by model instructions or user prompts.
-- **AI Brain Studio:** Multi-brain switching (WaMaX Master Coding Brain, Python Expert, Node.js Backend, Frontend Developer, Debugging Specialist, Security Auditor, Doubt Solving Mentor).
-- **Agent Manager:** 8 specialized agents (Coding, Debugging, Code Review, Testing, Security, Docs, Planner, Research) with tool permissions, approval gating, and local audit logging.
-- **Persistent AI Memory:** SQLite / JSON-backed persistent memory with keyword search and token budgeting so project knowledge persists across sessions.
-- **Monaco Code Editor:** Professional developer IDE with syntax highlighting, tabs, breadcrumbs, line numbers, and file tree.
-- **Doubt Solver & Code Explainer:** Instant one-click actions: "Explain Code", "Fix Bugs", "Refactor", "Write Tests", "Insert into Editor".
-- **Integrated Terminal & Git:** Real command execution with approval safeguards and source control status.
+| Feature | Cloud AI Tools (Cursor, Copilot, etc.) | ⚡ WaMaX IDE |
+| :--- | :---: | :---: |
+| **Privacy & Security** | Code uploaded to cloud servers | **100% Localhost — Data never leaves your PC** |
+| **Mandatory API Keys** | Requires paid subscription or API keys | **ZERO API keys required for coding & chat** |
+| **Image Generation** | Paid cloud credits | **Built-in 1-Click Studio + ComfyUI Manager** |
+| **Autonomous Builder** | Basic single-file autocomplete | **10-Step Autonomous Agent with Test Verification** |
+| **Resource Efficiency** | High memory usage | **Auto model unloading (`keep_alive: 0s`) for 7GB RAM** |
+| **OpenAI Gateway** | Proprietary lock-in | **Expose local models to external apps via `/api/v2`** |
 
 ---
 
-## Quick Start
+## 🏛️ System Architecture
 
-### 1. Requirements
-- Node.js v18+ (tested on Node v22 and v24)
-- Ollama installed locally or on your local network
-- Recommended models: `qwen2.5:1.5b` (ultra fast, ~1GB RAM), `qwen3.5:2b` (~2.7GB RAM), or `moondream` (vision)
+```mermaid
+graph TB
+    subgraph UI ["🖥️ Front-End Layer (Vite + React + Tailwind)"]
+        Monaco["Monaco Code Editor"]
+        Chat["Local AI Chat & Doubts"]
+        BuilderUI["Autonomous Builder"]
+        StudioUI["ComfyUI Image Studio"]
+        FolderPicker["Interactive Folder Browser"]
+    end
 
-### 2. Launch Locally (Windows)
-Double-click `start-wamax.bat` or run:
+    subgraph Core ["⚙️ WaMaX Core Engine (Node.js Express Daemon)"]
+        Router["ModelRouter (Auto-Switcher)"]
+        Rules["RuleEngine (Priority 1000 Inviolable Safety)"]
+        Memory["MemoryStore (Token-Budgeted Retrieval)"]
+        Builder["AutonomousBuilder (10-Step Engine)"]
+        Comfy["ComfyService (Managed Lifecycle)"]
+        Gateway["API Gateway Server (OpenAI v2 Standards)"]
+    end
+
+    subgraph LocalAI ["🤖 Local Inference & External AI Hardware"]
+        Ollama["Ollama Engine (:11434)"]
+        ComfyHost["ComfyUI (:8188)"]
+        OllamaModels["qwen2.5-coder / deepseek-r1 / qwen3.5"]
+    end
+
+    subgraph Storage ["💾 Decoupled User Data (Zero-Data-Loss)"]
+        DataDir["%APPDATA%/WaMaX-IDE/data or Custom Path"]
+        DataDir --> M1["memories.json"]
+        DataDir --> M2["rules.json"]
+        DataDir --> M3["brains.json"]
+        DataDir --> M4["gateway_keys.json"]
+    end
+
+    UI --> Core
+    Core --> LocalAI
+    Core --> Storage
+```
+
+---
+
+## 🚀 Key Features
+
+### 1. ⚡ Single-Click Native Windows Executable (`WaMaX-IDE.exe`)
+- **First-Time Install Setup**: Allows choosing where your AI Memory, Rules, and Models are stored (e.g., `D:\WaMaX-Storage` or `%USERPROFILE%\WaMaX-Storage`), preventing system `C:` drive bloat.
+- **Auto Ollama Installer**: Detects if Ollama is present; if not, offers 1-click silent background setup.
+- **System Tray Supervisor**: Keeps your backend active and opens browser directly to `http://localhost:3001`.
+
+### 2. 🤖 10-Step Autonomous Builder
+- **Import Existing Context**: Scans for Claude Code (`~/.claude/`), Gemini CLI (`~/.gemini/`), Antigravity, and Project Rules. Sanitizes and excludes all credentials (`ghp_`, `sk-`, etc.).
+- **10-Step Autonomous Execution**:
+  1. Inspect project structure & AST
+  2. Load rules & memories
+  3. Generate implementation plan
+  4. Identify files & tools
+  5. Generate code changes
+  6. Apply workspace changes
+  7. Execute permitted commands & install packages
+  8. Run test suite
+  9. Diagnose & fix errors
+  10. Produce final report
+- **Autonomy Levels**: `Plan Only`, `Approval Required`, or `Autonomous`.
+
+### 3. 🎨 ComfyUI Image Studio & Visual Asset Synthesizer
+- **Single-Click Visual Engine**: Synthesizes cybernetic UI badges, diagrams, and emblems instantly with 1-click PNG download.
+- **Managed ComfyUI Lifecycle**: Clone official ComfyUI, install requirements, and run Start / Stop / Restart with PID tracking.
+- **Curated Model Manager**: One-click download links for SD 1.5, DreamShaper 8, and SDXL Turbo with license metadata.
+
+### 4. 🔄 Dynamic Model Auto-Switcher (`ModelRouter`)
+- **Task-Aware**: Automatically switches to `qwen2.5-coder` for programming, `deepseek-r1` for reasoning, and `qwen2.5:1.5b` for casual chat.
+- **Low-Memory Guard**: Automatically throttles to lightweight models when free RAM is < 1200 MB.
+- **Fault-Tolerant Fallback**: Reroutes to a secondary model if inference times out or runs out of VRAM.
+
+### 5. 📂 Proper Interactive Open Folder System
+- **Real Windows Drive Navigation**: 1-click drive pills (`C:\`, `D:\`, `G:\`), `User Home`, `Desktop`, `Downloads`, and `Recent Workspaces`.
+- **Breadcrumbs & Search**: Clickable directory pills and real-time subfolder filtering.
+- **Native OS Dialog**: Invokes Windows Explorer folder browser dialog directly.
+
+### 6. 🌐 Developer Tools API Gateway
+- **OpenAI Compatible**: Connect external applications, Cursor, VS Code extensions, or scripts to `http://localhost:8787/api/v2`.
+- **API Key Management**: Supports key generation (`wmx_live_...`), rotation, granular permissions, and IP binding.
+
+---
+
+## 💻 Quick Start
+
+### Option A: 1-Click Desktop Executable (Recommended for Windows)
+
+1. Download **[`WaMaX-IDE.exe`](https://github.com/msamods/WaMaX-IDE/releases/download/v1.0.0/WaMaX-IDE.exe)** from the latest release.
+2. Double-click `WaMaX-IDE.exe`.
+3. Select your preferred storage folder on first run.
+4. WaMaX IDE opens in your browser at `http://localhost:3001`!
+
+---
+
+### Option B: From Source (Developers)
+
 ```bash
-# Terminal 1: Backend API
+# 1. Clone the repository
+git clone https://github.com/msamods/WaMaX-IDE.git
+cd WaMaX-IDE
+
+# 2. Install dependencies
+npm install
+
+# 3. Launch Development Server
+# Terminal 1: Backend API Gateway
 node server/index.js
 
-# Terminal 2: Frontend UI
+# Terminal 2: Frontend Vite
 npm run dev
 ```
-Open **`http://localhost:5173`** or **`http://localhost:3001`** in your browser.
+
+Visit **`http://localhost:5173`** or **`http://localhost:3001`**.
 
 ---
 
-## Automated Test Results
+## 🧪 Automated Testing
 
-WaMaX IDE includes a built-in automated test suite verifying all 10 core architectural modules:
+WaMaX IDE is battle-tested with **41 automated unit tests** across all architectural modules:
+
 ```bash
-node --test tests/core.test.js
+node --test tests/*.test.js
 ```
+
 ```text
-✔ Setup test sandbox
-✔ 1. Mandatory Safety Rules are inviolable and always present
-✔ 2. Rule creation, priority ordering, and deterministic resolution
-✔ 3. Brain creation, editing, and default fallback
-✔ 4. Agent permissions and audit log recording
-✔ 5. Persistent Memory creation, search, and token budget
-✔ 6. Safe File Path Validation & Traversal Prevention
-✔ 7. Terminal Command Approval Safeguards
-✔ 8. Ollama unavailable graceful degradation & metrics
-✔ Cleanup test sandbox
-ℹ tests 10 | pass 10 | fail 0
+✔ 1. Scan detects project-level AI rules (19ms)
+✔ 2. Secret Redaction: Tokens in preview are redacted (5ms)
+✔ 3. Import into RuleEngine preserves source attribution (10ms)
+✔ 4. Autonomous Builder in Plan Only mode does not write files (99ms)
+✔ 5. Autonomous Builder in Autonomous mode scaffolds files and executes (1600ms)
+✔ 6. ComfyService initializes with default config and safe data paths (7ms)
+✔ 7. checkPrerequisites detects OS, Python, and Git presence (406ms)
+✔ 8. getStatus cleanly categorizes not_installed when main.py is absent (347ms)
+✔ 9. Overwriting an existing ComfyUI installation during clone is blocked (10ms)
+✔ 10. Curated Models catalogue contains valid licenses and file metadata (2ms)
+...
+ℹ tests 41 | pass 41 | fail 0 | duration_ms 1991ms
 ```
+
+---
+
+## 📂 Repository Structure
+
+```
+WaMaX-IDE/
+├── dist/                      # Pre-compiled high-performance production bundle
+├── launcher/
+│   └── Program.cs             # C# Native Windows Executable source code
+├── server/
+│   ├── index.js               # Express API Daemon & Gateway router
+│   ├── routes/                # Versioned OpenAPI /v2 router
+│   └── services/              # Core Services
+│       ├── agentOrchestrator.js
+│       ├── aiContextImporter.js
+│       ├── autonomousBuilder.js
+│       ├── comfyService.js
+│       ├── fileService.js
+│       ├── gatewayServer.js
+│       ├── gatewayService.js
+│       ├── memoryStore.js
+│       ├── modelRouter.js
+│       ├── ruleEngine.js
+│       └── updateService.js
+├── src/                       # Frontend React Application
+│   ├── components/            # Sidebar, Editor, Modals, TopNav
+│   ├── services/api.ts        # Typed API Client
+│   └── types/ide.ts           # TypeScript Definitions
+├── tests/                     # 41 Unit tests
+├── build-exe.bat              # 1-Click C# Compiler script
+└── WaMaX-IDE.exe              # Standalone Windows Executable
+```
+
+---
+
+## 👥 Credits & Attribution
+
+WaMaX IDE is developed and maintained by:
+
+- **Lead Developer**: **MSAMODS** ([github.com/msamods](https://github.com/msamods))
+- **Co-Creator**: **WhatYouWantKerala**
+
+---
+
+## 📄 License
+
+This project is open-source and licensed under the **[MIT License](LICENSE)**.
+Feel free to fork, customize, and build your own local AI workflows!

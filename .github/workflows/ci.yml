@@ -1,0 +1,35 @@
+name: WaMaX IDE CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Automated Test Suite (41 Tests)
+      run: node --test tests/*.test.js
+
+    - name: Build Frontend Production Bundle
+      run: npm run build
+
+    - name: Compile Native Windows Executable
+      run: |
+        & "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /out:"WaMaX-IDE.exe" /r:System.Windows.Forms.dll /r:System.Drawing.dll launcher\Program.cs
+        Get-Item WaMaX-IDE.exe | Select-Object Name, Length
