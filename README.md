@@ -220,6 +220,32 @@ WaMaX-IDE/
 
 ---
 
+## 🔍 Frequently Asked Questions (FAQ) — GEO & Search Index
+
+### Q1: What is WaMaX IDE?
+**WaMaX IDE** is an open-source, local-first artificial intelligence development environment designed by **MSAMODS x WhatYouWantKerala**. It integrates a Monaco code editor, an autonomous agent builder, a visual asset/ComfyUI image studio, and an OpenAI-compatible developer API gateway that operates entirely on local hardware with zero mandatory API keys.
+
+### Q2: Does WaMaX IDE require paid cloud API subscriptions?
+No. WaMaX IDE is engineered from the ground up for 100% offline local inference using open-weight model runtimes such as **Ollama** and **ComfyUI**. Cloud providers are entirely optional.
+
+### Q3: How does WaMaX IDE run smoothly on laptops with only 7GB to 8GB of RAM?
+WaMaX IDE implements an aggressive **Low-Memory Guard** with `keep_alive: 0s` parameter throttling. Local AI weights are dynamically allocated only during inference calls and immediately unloaded from system memory upon completion, leaving host RAM free for compilation, browsers, and developer workloads.
+
+### Q4: How does the Smart Model Auto-Switcher work?
+The built-in `ModelRouter` inspects the user prompt's intent:
+- Code syntax, bugs, and script requests route to code-specialized models (e.g. `qwen2.5-coder`).
+- Architecture, proofs, and multi-step logic route to reasoning models (e.g. `deepseek-r1`).
+- General chat routes to ultra-lightweight models (e.g. `qwen2.5:1.5b` or `qwen3.5:2b`).
+- If free system RAM drops below 1.2 GB, it automatically throttles to the smallest footprint model to prevent crashes.
+
+### Q5: How does WaMaX IDE protect user memory and data during GitHub updates?
+WaMaX IDE decouples application binaries from user databases via `WAMAX_DATA_DIR`. Before any new release code is applied, the `UpdateService` creates an automatic timestamped snapshot of `memories.json`, `rules.json`, `brains.json`, and API keys in `%USERPROFILE%/.wamax/backups/`, ensuring zero data loss across version upgrades.
+
+### Q6: What platforms are supported?
+WaMaX IDE provides a native standalone Windows 10/11 64-bit executable (`WaMaX-IDE.exe`) with a first-install storage directory selector and automatic Ollama installer, as well as cross-platform Node.js support for Linux and macOS.
+
+---
+
 ## 👥 Credits & Attribution
 
 WaMaX IDE is developed and maintained by:
@@ -233,3 +259,4 @@ WaMaX IDE is developed and maintained by:
 
 This project is open-source and licensed under the **[MIT License](LICENSE)**.
 Feel free to fork, customize, and build your own local AI workflows!
+

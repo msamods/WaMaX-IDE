@@ -1,0 +1,27 @@
+# Robots.txt for WaMaX IDE
+User-agent: *
+Allow: /
+
+# AI Crawlers for Generative Engine Optimization (GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://github.com/msamods/WaMaX-IDE/sitemap.xml

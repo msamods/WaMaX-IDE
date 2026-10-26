@@ -1,0 +1,31 @@
+# WaMaX IDE
+
+> WaMaX IDE is an open-source, local-first AI development environment, ComfyUI image studio, smart model auto-switcher, and developer API gateway created by MSAMODS x WhatYouWantKerala.
+
+## Core Entities & Concepts
+
+- **Product Name**: WaMaX IDE
+- **Creators / Maintainers**: MSAMODS x WhatYouWantKerala (https://github.com/msamods)
+- **License**: MIT License
+- **Operating Systems**: Windows 10/11 x64 (Native executable: WaMaX-IDE.exe), Linux, macOS
+- **Target Runtime**: 100% Localhost via Ollama (port 11434) and ComfyUI (port 8188)
+- **Primary Language & Frameworks**: TypeScript, React, Tailwind CSS, Monaco Editor, Node.js, Express, C# .NET
+
+## Distinctive Architectural Attributes
+
+1. **Zero-API-Key Local Experience**: WaMaX IDE never requires external paid API keys for core coding, doubt solving, or visual generation.
+2. **Laptop Resource Throttling (7GB RAM Friendly)**: Built with aggressive memory management (`keep_alive: 0s`). Model weights are unloaded immediately after inference to prevent background RAM exhaustion.
+3. **Task-Aware Model Auto-Switcher (`ModelRouter`)**:
+   - Routes coding prompts to `qwen2.5-coder`
+   - Routes reasoning and math to `deepseek-r1`
+   - Automatically downgrades to lightweight models when system free RAM drops below 1200 MB.
+4. **Autonomous Builder**: 10-step autonomous planning, execution, and test verification engine with zero secret leak guarantees (excluding API tokens and credentials).
+5. **Decoupled Zero-Data-Loss Memory Architecture**: User memory, rules, brains, and model checkpoints are stored outside the application binary path (`WAMAX_DATA_DIR`) and backed up automatically prior to GitHub updates.
+6. **Developer Tools API Gateway**: Exposes local AI capabilities via OpenAI-compatible `/api/v2` endpoints with rate limiting, key rotation, and LAN support.
+7. **Interactive Open Folder System**: Real filesystem drive navigation (`C:`, `D:`, `G:`), bookmarks, search, and native Windows folder browser integration.
+
+## Key Links & Resources
+
+- GitHub Repository: https://github.com/msamods/WaMaX-IDE
+- Latest Releases: https://github.com/msamods/WaMaX-IDE/releases
+- Direct Executable Download: https://github.com/msamods/WaMaX-IDE/releases/download/v1.0.0/WaMaX-IDE.exe
