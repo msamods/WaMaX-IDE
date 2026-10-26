@@ -14,6 +14,7 @@ import { MonacoEditorWrapper } from './components/Editor/MonacoEditorWrapper';
 import { ChatPanel } from './components/AIChat/ChatPanel';
 import { TerminalPanel } from './components/BottomPanel/TerminalPanel';
 import { TopNav } from './components/TopBar/TopNav';
+import { ApiGatewayDashboard } from './components/Gateway/ApiGatewayDashboard';
 import { api } from './services/api';
 import { Brain, Agent, Rule, MemoryItem, ProjectFile, GitStatusInfo, ChatMessage } from './types/ide';
 
@@ -261,8 +262,9 @@ export const App: React.FC = () => {
           setActiveTab={setActiveSidebarTab}
         />
 
-        {/* Primary Sidebar */}
-        <div className="w-64 bg-[#0d1117] border-r border-[#30363d] flex flex-col shrink-0 overflow-hidden">
+        {/* Primary Sidebar (Hidden when viewing full Developer Gateway) */}
+        {activeSidebarTab !== 'gateway' && (
+          <div className="w-64 bg-[#0d1117] border-r border-[#30363d] flex flex-col shrink-0 overflow-hidden">
           {activeSidebarTab === 'explorer' && (
             <FileExplorer
               tree={fileTree}
@@ -360,8 +362,12 @@ export const App: React.FC = () => {
             />
           )}
         </div>
+      )}
 
-        {/* Center: Editor + Bottom Panel */}
+      {/* Center: Developer Tools API Gateway OR Editor + Bottom Panel */}
+      {activeSidebarTab === 'gateway' ? (
+        <ApiGatewayDashboard />
+      ) : (
         <div className="flex-1 flex flex-col min-w-0 bg-[#161b22] overflow-hidden">
           <TabBar
             tabs={openTabs}
@@ -398,6 +404,7 @@ export const App: React.FC = () => {
             <TerminalPanel onClose={() => setShowBottomPanel(false)} />
           )}
         </div>
+      )}
 
         {/* Right: AI Chat & Doubt Solving Panel */}
         <div className="w-96 shrink-0 flex flex-col overflow-hidden">

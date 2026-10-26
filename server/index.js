@@ -13,6 +13,9 @@ import { AgentOrchestrator } from './services/agentOrchestrator.js';
 import { FileService } from './services/fileService.js';
 import { GitService } from './services/gitService.js';
 import { TerminalService } from './services/terminalService.js';
+import { GatewayService } from './services/gatewayService.js';
+import { GatewayServer } from './services/gatewayServer.js';
+import { createV2Router } from './routes/v2.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,6 +35,16 @@ const agentOrchestrator = new AgentOrchestrator(path.join(__dirname, 'data', 'ag
 const fileService = new FileService(defaultWorkspace);
 const gitService = new GitService(defaultWorkspace);
 const terminalService = new TerminalService(defaultWorkspace);
+const gatewayService = new GatewayService(path.join(__dirname, 'data'));
+const gatewayServer = new GatewayServer({
+  gatewayService,
+  ollamaClient: ollama,
+  brainStore,
+  ruleEngine,
+  agentOrchestrator,
+  memoryStore,
+  fileService
+});
 
 app.use(cors());
 app.use(express.json({ limit: '25mb' }));
@@ -306,6 +319,131 @@ app.get('/api/comfy/status', async (req, res) => {
   }
 });
 
+// 12. Mount Versioned Gateway Router (/api/v2) directly on main port too
+const v2Router = createV2Router({
+  gatewayService,
+  ollamaClient: ollama,
+  brainStore,
+  ruleEngine,
+  agentOrchestrator,
+  memoryStore,
+  fileService
+});
+app.use('/api/v2', v2Router);
+
+// 13. API Gateway Dashboard & Management Endpoints (Internal IDE Use)
+app.get('/api/gateway/status', (req, res) => {
+  res.json(gatewayServer.getStatus());
+});
+
+app.post('/api/gateway/start', async (req, res) => {
+  try {
+    const result = await gatewayServer.start();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/gateway/stop', async (req, res) => {
+  try {
+    const result = await gatewayServer.stop();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/gateway/restart', async (req, res) => {
+  try {
+    const result = await gatewayServer.restart();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/gateway/config', (req, res) => {
+  res.json(gatewayService.getConfig());
+});
+
+app.post('/api/gateway/config', async (req, res) => {
+  try {
+    const updated = gatewayService.updateConfig(req.body);
+    // If the server is currently running and host/port/lan changed, restart it
+    if (gatewayServer.status === 'running') {
+      await gatewayServer.restart();
+    }
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get('/api/gateway/keys', (req, res) => {
+  res.json(gatewayService.getKeys(true));
+});
+
+app.post('/api/gateway/keys', (req, res) => {
+  try {
+    const newKey = gatewayService.createKey(req.body);
+    // Returns full secret ONLY this once!
+    res.status(201).json(newKey);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/gateway/keys/:id/rotate', (req, res) => {
+  try {
+    const rotated = gatewayService.rotateKey(req.params.id);
+    res.json(rotated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/gateway/keys/:id/revoke', (req, res) => {
+  try {
+    gatewayService.revokeKey(req.params.id);
+    res.json({ success: true, revoked: req.params.id });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.patch('/api/gateway/keys/:id', (req, res) => {
+  try {
+    const updated = gatewayService.updateKey(req.params.id, req.body);
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.delete('/api/gateway/keys/:id', (req, res) => {
+  try {
+    gatewayService.deleteKey(req.params.id);
+    res.json({ success: true, deleted: req.params.id });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get('/api/gateway/logs', (req, res) => {
+  const { keyId, endpoint, status, limit } = req.query;
+  res.json(gatewayService.getLogs({ keyId, endpoint, status, limit: limit ? parseInt(limit, 10) : 100 }));
+});
+
+app.delete('/api/gateway/logs', (req, res) => {
+  gatewayService.clearLogs();
+  res.json({ success: true });
+});
+
+app.get('/api/gateway/stats', (req, res) => {
+  res.json(gatewayService.getMetrics());
+});
+
 // Serve static build if in production
 const distPath = path.join(__dirname, '..', 'dist');
 if (fs.existsSync(distPath)) {
@@ -313,7 +451,31 @@ if (fs.existsSync(distPath)) {
   app.get('*', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
 }
 
-app.listen(PORT, '0.0.0.0', () => {
+const mainServer = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`WaMaX IDE Backend running on http://0.0.0.0:${PORT}`);
   console.log(`Workspace Root: ${fileService.getWorkspace()}`);
+
+  // Automatically start Gateway server if enabled in config
+  if (gatewayService.config.enabled) {
+    try {
+      await gatewayServer.start();
+    } catch (e) {
+      console.warn(`[GatewayServer] Could not auto-start on port ${gatewayService.config.port}:`, e.message);
+    }
+  }
 });
+
+// Safe cleanup on shutdown
+const shutdown = async () => {
+  console.log('\n[WaMaX IDE] Gracefully shutting down services...');
+  try {
+    await gatewayServer.stop();
+  } catch (e) {}
+  mainServer.close(() => {
+    process.exit(0);
+  });
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+

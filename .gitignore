@@ -34,3 +34,6 @@ dist-ssr
 server/data/*.db
 server/data/*.sqlite
 server/data/*.sqlite-journal
+server/data/*.json
+tests/sandbox*
+

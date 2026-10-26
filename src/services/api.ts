@@ -205,5 +205,88 @@ export const api = {
         }
       }
     }
+  },
+
+  // Gateway Developer API Endpoints
+  async getGatewayStatus() {
+    const res = await fetch(`${BASE_URL}/gateway/status`);
+    return await res.json();
+  },
+  async startGateway() {
+    const res = await fetch(`${BASE_URL}/gateway/start`, { method: 'POST' });
+    return await res.json();
+  },
+  async stopGateway() {
+    const res = await fetch(`${BASE_URL}/gateway/stop`, { method: 'POST' });
+    return await res.json();
+  },
+  async restartGateway() {
+    const res = await fetch(`${BASE_URL}/gateway/restart`, { method: 'POST' });
+    return await res.json();
+  },
+  async getGatewayConfig() {
+    const res = await fetch(`${BASE_URL}/gateway/config`);
+    return await res.json();
+  },
+  async updateGatewayConfig(config: any) {
+    const res = await fetch(`${BASE_URL}/gateway/config`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config)
+    });
+    return await res.json();
+  },
+  async getGatewayKeys() {
+    const res = await fetch(`${BASE_URL}/gateway/keys`);
+    return await res.json();
+  },
+  async createGatewayKey(data: any) {
+    const res = await fetch(`${BASE_URL}/gateway/keys`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return await res.json();
+  },
+  async rotateGatewayKey(id: string) {
+    const res = await fetch(`${BASE_URL}/gateway/keys/${id}/rotate`, { method: 'POST' });
+    return await res.json();
+  },
+  async revokeGatewayKey(id: string) {
+    const res = await fetch(`${BASE_URL}/gateway/keys/${id}/revoke`, { method: 'POST' });
+    return await res.json();
+  },
+  async updateGatewayKey(id: string, updates: any) {
+    const res = await fetch(`${BASE_URL}/gateway/keys/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+    return await res.json();
+  },
+  async deleteGatewayKey(id: string) {
+    const res = await fetch(`${BASE_URL}/gateway/keys/${id}`, { method: 'DELETE' });
+    return await res.json();
+  },
+  async getGatewayLogs(filter: { keyId?: string; endpoint?: string; status?: number; limit?: number } = {}) {
+    const q = new URLSearchParams();
+    if (filter.keyId) q.append('keyId', filter.keyId);
+    if (filter.endpoint) q.append('endpoint', filter.endpoint);
+    if (filter.status) q.append('status', String(filter.status));
+    if (filter.limit) q.append('limit', String(filter.limit));
+    const res = await fetch(`${BASE_URL}/gateway/logs?${q.toString()}`);
+    return await res.json();
+  },
+  async clearGatewayLogs() {
+    const res = await fetch(`${BASE_URL}/gateway/logs`, { method: 'DELETE' });
+    return await res.json();
+  },
+  async getGatewayStats() {
+    const res = await fetch(`${BASE_URL}/gateway/stats`);
+    return await res.json();
+  },
+  async getOpenApiSpec() {
+    const res = await fetch(`${BASE_URL}/v2/openapi.json`);
+    return await res.json();
   }
 };
