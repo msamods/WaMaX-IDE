@@ -6,6 +6,7 @@ interface Props {
   activeModel: string;
   ollamaOnline: boolean;
   onToggleTerminal: () => void;
+  onOpenFolder?: () => void;
   systemMetrics?: {
     usedMemMB: number;
     totalMemMB: number;
@@ -18,6 +19,7 @@ export const TopNav: React.FC<Props> = ({
   activeModel,
   ollamaOnline,
   onToggleTerminal,
+  onOpenFolder,
   systemMetrics
 }) => {
   return (
@@ -39,10 +41,14 @@ export const TopNav: React.FC<Props> = ({
           <span className="text-[#8b949e]">x</span>
           <span className="text-amber-300">WhatYouWantKerala</span>
         </a>
-        <div className="flex items-center gap-1.5 text-xs text-[#8b949e] font-mono bg-[#161b22] px-2 py-0.5 rounded border border-[#30363d] max-w-xs truncate" title={workspace}>
-          <FolderOpen size={12} className="text-amber-400 shrink-0" />
-          <span className="truncate">{workspace.split(/[\\/]/).pop()}</span>
-        </div>
+        <button
+          onClick={onOpenFolder}
+          className="flex items-center gap-1.5 text-xs text-[#8b949e] hover:text-white font-mono bg-[#161b22] hover:bg-[#21262d] px-2.5 py-0.5 rounded border border-[#30363d] hover:border-cyan-500/60 max-w-xs truncate cursor-pointer transition-all shadow-sm"
+          title={`Current Workspace: ${workspace}\nClick to Open Folder / Switch Workspace`}
+        >
+          <FolderOpen size={13} className="text-amber-400 shrink-0" />
+          <span className="truncate font-semibold text-cyan-300">{workspace.split(/[\\/]/).pop() || 'Open Folder'}</span>
+        </button>
       </div>
 
       {/* Center: Command Palette Trigger */}

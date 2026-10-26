@@ -134,6 +134,31 @@ export const api = {
     return await res.json();
   },
 
+  // Workspace & Folder Management
+  async switchWorkspace(newPath: string): Promise<{ success: boolean; workspace: string }> {
+    const res = await fetch(`${BASE_URL}/workspace`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: newPath })
+    });
+    return await res.json();
+  },
+  async browseWorkspace(dir = ''): Promise<{
+    currentPath: string;
+    parentPath: string | null;
+    bookmarks: { name: string; path: string }[];
+    drives: { name: string; path: string }[];
+    directories: { name: string; path: string; hasChildren: boolean }[];
+    recent: string[];
+  }> {
+    const res = await fetch(`${BASE_URL}/workspace/browse?dir=${encodeURIComponent(dir)}`);
+    return await res.json();
+  },
+  async openNativeFolderDialog(): Promise<{ success: boolean; workspace?: string; cancelled?: boolean }> {
+    const res = await fetch(`${BASE_URL}/workspace/native-picker`, { method: 'POST' });
+    return await res.json();
+  },
+
   // Git
   async getGitStatus(): Promise<GitStatusInfo> {
     const res = await fetch(`${BASE_URL}/git/status`);

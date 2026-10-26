@@ -19,6 +19,10 @@ import { createV2Router } from './routes/v2.js';
 import { AiContextImporter } from './services/aiContextImporter.js';
 import { AutonomousBuilder } from './services/autonomousBuilder.js';
 import { ComfyService } from './services/comfyService.js';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -179,12 +183,52 @@ app.post('/api/files/delete', (req, res) => {
   }
 });
 
+app.get('/api/workspace/browse', (req, res) => {
+  try {
+    const data = fileService.browseDirectories(req.query.dir);
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/workspace/native-picker', async (req, res) => {
+  try {
+    if (process.platform === 'win32') {
+      const psScript = `
+        Add-Type -AssemblyName System.Windows.Forms
+        $f = New-Object System.Windows.Forms.FolderBrowserDialog
+        $f.Description = 'Select Workspace Folder for WaMaX IDE'
+        $f.ShowNewFolderButton = $true
+        if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+          $f.SelectedPath
+        }
+      `;
+      const { stdout } = await execAsync(`powershell -NoProfile -Command "${psScript.replace(/\r?\n/g, ' ')}"`);
+      const selected = stdout.trim();
+      if (selected && fs.existsSync(selected)) {
+        fileService.setWorkspace(selected);
+        gitService.setWorkspace(selected);
+        terminalService.setWorkspace(selected);
+        fileService.addRecentWorkspace(selected);
+        return res.json({ success: true, workspace: selected });
+      }
+      return res.json({ success: false, cancelled: true });
+    } else {
+      res.status(501).json({ error: 'Native dialog not supported on this platform. Use web browser picker.' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/workspace', (req, res) => {
   const { path: newPath } = req.body;
   try {
     fileService.setWorkspace(newPath);
     gitService.setWorkspace(newPath);
     terminalService.setWorkspace(newPath);
+    fileService.addRecentWorkspace(newPath);
     res.json({ success: true, workspace: fileService.getWorkspace() });
   } catch (e) {
     res.status(400).json({ error: e.message });

@@ -16,6 +16,7 @@ import { ChatPanel } from './components/AIChat/ChatPanel';
 import { TerminalPanel } from './components/BottomPanel/TerminalPanel';
 import { TopNav } from './components/TopBar/TopNav';
 import { ApiGatewayDashboard } from './components/Gateway/ApiGatewayDashboard';
+import { OpenFolderModal } from './components/Modals/OpenFolderModal';
 import { api } from './services/api';
 import { Brain, Agent, Rule, MemoryItem, ProjectFile, GitStatusInfo, ChatMessage } from './types/ide';
 
@@ -28,6 +29,22 @@ export const App: React.FC = () => {
   const [fileTree, setFileTree] = useState<ProjectFile[]>([]);
   const [openTabs, setOpenTabs] = useState<OpenTab[]>([]);
   const [activeTabPath, setActiveTabPath] = useState<string | null>(null);
+  const [showFolderModal, setShowFolderModal] = useState<boolean>(false);
+
+  const handleSwitchWorkspace = async (newPath: string) => {
+    try {
+      const res = await api.switchWorkspace(newPath);
+      if (res && res.success) {
+        setWorkspace(res.workspace);
+        setOpenTabs([]);
+        setActiveTabPath(null);
+        const treeData = await api.getFileTree();
+        setFileTree(treeData.tree || []);
+      }
+    } catch (err: any) {
+      alert(`Could not switch workspace: ${err.message}`);
+    }
+  };
 
   // Bottom panel
   const [showBottomPanel, setShowBottomPanel] = useState<boolean>(true);
@@ -252,6 +269,7 @@ export const App: React.FC = () => {
         activeModel={activeModel}
         ollamaOnline={ollamaOnline}
         onToggleTerminal={() => setShowBottomPanel(!showBottomPanel)}
+        onOpenFolder={() => setShowFolderModal(true)}
         systemMetrics={systemMetrics}
       />
 
@@ -275,6 +293,7 @@ export const App: React.FC = () => {
               onRefresh={refreshAll}
               onCreateFile={handleCreateFile}
               onDeleteFile={handleDeleteFile}
+              onOpenFolder={() => setShowFolderModal(true)}
             />
           )}
           {activeSidebarTab === 'brains' && (
@@ -430,6 +449,14 @@ export const App: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Interactive Open Folder Modal */}
+      <OpenFolderModal
+        isOpen={showFolderModal}
+        onClose={() => setShowFolderModal(false)}
+        currentWorkspace={workspace}
+        onSelectWorkspace={handleSwitchWorkspace}
+      />
     </div>
   );
 };
