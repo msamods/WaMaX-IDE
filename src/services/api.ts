@@ -326,5 +326,71 @@ export const api = {
   async approveBuilderSession(id: string) {
     const res = await fetch(`${BASE_URL}/builder/sessions/${id}/approve`, { method: 'POST' });
     return await res.json();
+  },
+
+  // ComfyUI Image Studio & Lifecycle
+  async getComfyStatus() {
+    const res = await fetch(`${BASE_URL}/comfy/status`);
+    return await res.json();
+  },
+  async getComfyPrerequisites() {
+    const res = await fetch(`${BASE_URL}/comfy/prerequisites`);
+    return await res.json();
+  },
+  async cloneComfy(targetDir?: string) {
+    const res = await fetch(`${BASE_URL}/comfy/setup/clone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetDir })
+    });
+    return await res.json();
+  },
+  async installComfyRequirements() {
+    const res = await fetch(`${BASE_URL}/comfy/setup/requirements`, { method: 'POST' });
+    return await res.json();
+  },
+  async startComfy() {
+    const res = await fetch(`${BASE_URL}/comfy/start`, { method: 'POST' });
+    return await res.json();
+  },
+  async stopComfy() {
+    const res = await fetch(`${BASE_URL}/comfy/stop`, { method: 'POST' });
+    return await res.json();
+  },
+  async restartComfy() {
+    const res = await fetch(`${BASE_URL}/comfy/restart`, { method: 'POST' });
+    return await res.json();
+  },
+  async getComfyLogs(lines = 100) {
+    const res = await fetch(`${BASE_URL}/comfy/logs?lines=${lines}`);
+    return await res.json();
+  },
+  async getComfyModels() {
+    const res = await fetch(`${BASE_URL}/comfy/models`);
+    return await res.json();
+  },
+  async updateComfyConfig(config: any) {
+    const res = await fetch(`${BASE_URL}/comfy/config`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config)
+    });
+    return await res.json();
+  },
+  async generateComfyImage(params: any) {
+    const res = await fetch(`${BASE_URL}/comfy/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+    return await res.json();
+  },
+  async interruptComfy() {
+    const res = await fetch(`${BASE_URL}/comfy/interrupt`, { method: 'POST' });
+    return await res.json();
+  },
+  async getComfyHistory() {
+    const res = await fetch(`${BASE_URL}/comfy/history`);
+    return await res.json();
   }
 };

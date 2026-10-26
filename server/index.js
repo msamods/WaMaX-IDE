@@ -18,6 +18,7 @@ import { GatewayServer } from './services/gatewayServer.js';
 import { createV2Router } from './routes/v2.js';
 import { AiContextImporter } from './services/aiContextImporter.js';
 import { AutonomousBuilder } from './services/autonomousBuilder.js';
+import { ComfyService } from './services/comfyService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,6 +56,10 @@ const gatewayServer = new GatewayServer({
   agentOrchestrator,
   memoryStore,
   fileService
+});
+const comfyService = new ComfyService({
+  workspaceRoot: defaultWorkspace,
+  dataPath: path.join(__dirname, 'data')
 });
 
 app.use(cors());
@@ -320,14 +325,107 @@ app.post('/api/terminal/execute', async (req, res) => {
 });
 app.get('/api/terminal/history', (req, res) => res.json(terminalService.getHistory()));
 
-// 11. ComfyUI Image Studio (Optional)
+// 11. ComfyUI Image Studio & Lifecycle Management
 app.get('/api/comfy/status', async (req, res) => {
   try {
-    const r = await fetch('http://127.0.0.1:8188/system_stats', { signal: AbortSignal.timeout(2000) });
-    res.json({ available: r.ok });
-  } catch {
-    res.json({ available: false, hint: 'ComfyUI is optional. To enable, launch ComfyUI on http://127.0.0.1:8188.' });
+    const status = await comfyService.getStatus();
+    res.json(status);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
+});
+
+app.get('/api/comfy/prerequisites', async (req, res) => {
+  try {
+    const prereqs = await comfyService.checkPrerequisites();
+    res.json(prereqs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/comfy/setup/clone', async (req, res) => {
+  try {
+    const result = await comfyService.cloneRepository(req.body.targetDir);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/comfy/setup/requirements', async (req, res) => {
+  try {
+    const result = await comfyService.installRequirements();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/comfy/start', async (req, res) => {
+  try {
+    const result = await comfyService.startServer();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/comfy/stop', async (req, res) => {
+  try {
+    const result = await comfyService.stopServer();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/comfy/restart', async (req, res) => {
+  try {
+    const result = await comfyService.restartServer();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/comfy/logs', (req, res) => {
+  res.json({ logs: comfyService.getLogs(Number(req.query.lines) || 100) });
+});
+
+app.get('/api/comfy/models', async (req, res) => {
+  try {
+    const details = await comfyService.getModelManagerDetails();
+    res.json(details);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/comfy/config', (req, res) => {
+  res.json(comfyService.updateConfig(req.body));
+});
+
+app.post('/api/comfy/generate', async (req, res) => {
+  try {
+    const result = await comfyService.generateImage(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/comfy/interrupt', async (req, res) => {
+  try {
+    const result = await comfyService.cancelGeneration();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/comfy/history', (req, res) => {
+  res.json(comfyService.getHistory());
 });
 
 // 12. Mount Versioned Gateway Router (/api/v2) directly on main port too
@@ -545,6 +643,9 @@ const shutdown = async () => {
   console.log('\n[WaMaX IDE] Gracefully shutting down services...');
   try {
     await gatewayServer.stop();
+  } catch (e) {}
+  try {
+    await comfyService.stopServer();
   } catch (e) {}
   mainServer.close(() => {
     process.exit(0);
