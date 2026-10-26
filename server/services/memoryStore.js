@@ -133,4 +133,9 @@ export class MemoryStore {
 
     return { text, items: selected };
   }
+
+  search(query, limit = 5) {
+    const res = this.retrieve({ query, maxTokens: limit * 200 });
+    return res.items.slice(0, limit);
+  }
 }

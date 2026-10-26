@@ -10,13 +10,15 @@ import {
   Cpu,
   Image as ImageIcon,
   Radio,
-  Settings
+  Settings,
+  Wand2
 } from 'lucide-react';
 
 export type ActiveSidebarTab = 
   | 'explorer' 
   | 'search' 
   | 'git' 
+  | 'builder'
   | 'brains' 
   | 'agents' 
   | 'rules' 
@@ -36,13 +38,14 @@ export const ActivityBar: React.FC<Props> = ({ activeTab, setActiveTab }) => {
     { id: 'explorer', icon: Files, label: 'Explorer' },
     { id: 'search', icon: Search, label: 'Search Workspace' },
     { id: 'git', icon: GitBranch, label: 'Source Control' },
+    { id: 'builder', icon: Wand2, label: 'Autonomous Builder' },
     { id: 'gateway', icon: Radio, label: 'Developer Tools → API Gateway' },
     { id: 'brains', icon: Brain, label: 'AI Brain Studio' },
     { id: 'agents', icon: Bot, label: 'Agent Manager' },
     { id: 'rules', icon: Scale, label: 'Rules Engine' },
     { id: 'memory', icon: Database, label: 'AI Memory System' },
     { id: 'models', icon: Cpu, label: 'Local Models (Ollama)' },
-    { id: 'images', icon: ImageIcon, label: 'ComfyUI Image Studio' }
+    { id: 'images', icon: ImageIcon, label: 'Visual Asset & Image Studio' }
   ];
 
   return (

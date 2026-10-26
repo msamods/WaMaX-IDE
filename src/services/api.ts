@@ -288,5 +288,43 @@ export const api = {
   async getOpenApiSpec() {
     const res = await fetch(`${BASE_URL}/v2/openapi.json`);
     return await res.json();
+  },
+
+  // Autonomous Builder & AI Context Importer
+  async scanBuilderContext() {
+    const res = await fetch(`${BASE_URL}/builder/scan`);
+    return await res.json();
+  },
+  async previewBuilderSource(source: string) {
+    const res = await fetch(`${BASE_URL}/builder/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source })
+    });
+    return await res.json();
+  },
+  async importBuilderContext(sources: string[]) {
+    const res = await fetch(`${BASE_URL}/builder/import`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sources })
+    });
+    return await res.json();
+  },
+  async startBuilderSession(params: { prompt: string; autonomyLevel: string; allowedTools?: string[] }) {
+    const res = await fetch(`${BASE_URL}/builder/sessions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+    return await res.json();
+  },
+  async getBuilderSession(id: string) {
+    const res = await fetch(`${BASE_URL}/builder/sessions/${id}`);
+    return await res.json();
+  },
+  async approveBuilderSession(id: string) {
+    const res = await fetch(`${BASE_URL}/builder/sessions/${id}/approve`, { method: 'POST' });
+    return await res.json();
   }
 };

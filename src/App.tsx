@@ -8,6 +8,7 @@ import { MemorySystemPanel } from './components/Sidebar/MemorySystemPanel';
 import { ModelManagerPanel } from './components/Sidebar/ModelManagerPanel';
 import { SourceControlPanel } from './components/Sidebar/SourceControlPanel';
 import { ImageStudioPanel } from './components/Sidebar/ImageStudioPanel';
+import { AutonomousBuilderPanel } from './components/Sidebar/AutonomousBuilderPanel';
 import { SettingsPanel } from './components/Sidebar/SettingsPanel';
 import { TabBar, OpenTab } from './components/Editor/TabBar';
 import { MonacoEditorWrapper } from './components/Editor/MonacoEditorWrapper';
@@ -347,6 +348,7 @@ export const App: React.FC = () => {
               }}
             />
           )}
+          {activeSidebarTab === 'builder' && <AutonomousBuilderPanel />}
           {activeSidebarTab === 'images' && <ImageStudioPanel />}
           {activeSidebarTab === 'settings' && (
             <SettingsPanel

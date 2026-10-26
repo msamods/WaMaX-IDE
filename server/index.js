@@ -16,6 +16,8 @@ import { TerminalService } from './services/terminalService.js';
 import { GatewayService } from './services/gatewayService.js';
 import { GatewayServer } from './services/gatewayServer.js';
 import { createV2Router } from './routes/v2.js';
+import { AiContextImporter } from './services/aiContextImporter.js';
+import { AutonomousBuilder } from './services/autonomousBuilder.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +38,15 @@ const fileService = new FileService(defaultWorkspace);
 const gitService = new GitService(defaultWorkspace);
 const terminalService = new TerminalService(defaultWorkspace);
 const gatewayService = new GatewayService(path.join(__dirname, 'data'));
+const aiContextImporter = new AiContextImporter(defaultWorkspace);
+const autonomousBuilder = new AutonomousBuilder({
+  workspaceRoot: defaultWorkspace,
+  fileService,
+  terminalService,
+  ruleEngine,
+  memoryStore,
+  ollamaClient: ollama
+});
 const gatewayServer = new GatewayServer({
   gatewayService,
   ollamaClient: ollama,
@@ -443,6 +454,70 @@ app.delete('/api/gateway/logs', (req, res) => {
 app.get('/api/gateway/stats', (req, res) => {
   res.json(gatewayService.getMetrics());
 });
+
+// 14. Autonomous Builder & AI Context Importer Endpoints
+app.get('/api/builder/scan', async (req, res) => {
+  try {
+    const scan = await aiContextImporter.scanAvailableContext();
+    res.json(scan);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/builder/preview', async (req, res) => {
+  try {
+    const preview = await aiContextImporter.previewSource(req.body.source);
+    res.json(preview);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/builder/import', async (req, res) => {
+  try {
+    const result = await aiContextImporter.importItems({
+      selectedSources: req.body.selectedSources || [],
+      ruleEngine,
+      memoryStore,
+      brainStore
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/builder/sessions', async (req, res) => {
+  try {
+    const { taskPrompt, autonomyLevel } = req.body;
+    if (!taskPrompt) return res.status(400).json({ error: 'taskPrompt is required' });
+    const session = await autonomousBuilder.createSession({
+      taskPrompt,
+      autonomyLevel: autonomyLevel || 'autonomous'
+    });
+    res.status(201).json(session);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/builder/sessions/:id', (req, res) => {
+  const session = autonomousBuilder.getSession(req.params.id);
+  if (!session) return res.status(404).json({ error: 'Session not found' });
+  res.json(session);
+});
+
+app.post('/api/builder/sessions/:id/approve', async (req, res) => {
+  try {
+    await autonomousBuilder.approveSession(req.params.id);
+    const session = autonomousBuilder.getSession(req.params.id);
+    res.json({ success: true, session });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Serve static build if in production
 const distPath = path.join(__dirname, '..', 'dist');
